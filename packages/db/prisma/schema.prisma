@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  customer
+  admin
+}
+
+enum ProductStatus {
+  draft
+  active
+  archived
+}
+
+enum OrderStatus {
+  pending
+  paid
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+enum PaymentStatus {
+  pending
+  authorized
+  paid
+  failed
+  refunded
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  role            Role      @default(customer)
+  isActive        Boolean   @default(true)
+  emailVerifiedAt DateTime?
+  lastLoginAt     DateTime?
+  addresses       Address[]
+  carts           Cart[]
+  orders          Order[]
+  reviews         Review[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Address {
+  id          String   @id @default(uuid())
+  userId      String
+  fullName    String
+  line1       String
+  line2       String?
+  city        String
+  state       String
+  postalCode  String
+  countryCode String
+  phone       String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String
+  imageUrl    String
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id               String        @id @default(uuid())
+  categoryId       String
+  name             String
+  slug             String        @unique
+  sku              String        @unique
+  shortDescription String
+  description      String
+  brand            String
+  price            Decimal       @db.Decimal(12, 2)
+  compareAtPrice   Decimal?      @db.Decimal(12, 2)
+  ratingAvg        Decimal       @default(0) @db.Decimal(3, 2)
+  ratingCount      Int           @default(0)
+  imageUrl         String
+  imageAlt         String
+  inventoryQty     Int           @default(0)
+  tags             String[]
+  status           ProductStatus @default(active)
+  category         Category      @relation(fields: [categoryId], references: [id])
+  reviews          Review[]
+  orderItems       OrderItem[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([categoryId, price])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String?
+  sessionId String?    @unique
+  currency  String     @default("INR")
+  expiresAt DateTime
+  items     CartItem[]
+  user      User?      @relation(fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  productId String
+  quantity  Int
+  unitPrice Decimal  @db.Decimal(12, 2)
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id                String        @id @default(uuid())
+  orderNumber       String        @unique
+  userId            String
+  status            OrderStatus   @default(pending)
+  paymentStatus     PaymentStatus @default(pending)
+  currency          String        @default("INR")
+  subtotal          Decimal       @db.Decimal(12, 2)
+  shippingTotal     Decimal       @db.Decimal(12, 2)
+  taxTotal          Decimal       @db.Decimal(12, 2)
+  grandTotal        Decimal       @db.Decimal(12, 2)
+  billingAddress    Json
+  shippingAddress   Json
+  paymentProvider   String
+  paymentReference  String?
+  placedAt          DateTime?
+  user              User          @relation(fields: [userId], references: [id])
+  items             OrderItem[]
+  payments          Payment[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  productId   String
+  productName String
+  sku         String
+  quantity    Int
+  unitPrice   Decimal  @db.Decimal(12, 2)
+  lineTotal   Decimal  @db.Decimal(12, 2)
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  orderId           String
+  provider          String
+  providerPaymentId String?
+  providerOrderId   String?
+  providerSignature String?
+  status            PaymentStatus @default(pending)
+  amount            Decimal       @db.Decimal(12, 2)
+  currency          String
+  rawResponse       Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Review {
+  id                 String   @id @default(uuid())
+  userId             String
+  productId          String
+  rating             Int
+  title              String?
+  body               String?
+  isVerifiedPurchase Boolean  @default(false)
+  status             String   @default("pending")
+  user               User     @relation(fields: [userId], references: [id])
+  product            Product  @relation(fields: [productId], references: [id])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([productId, userId])
+}

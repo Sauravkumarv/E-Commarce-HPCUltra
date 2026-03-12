@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es2022"
+    ],
+    "allowSyntheticDefaultImports": true,
+    "incremental": true,
+    "moduleResolution": "Bundler",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "noEmit": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

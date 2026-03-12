@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@hpc-ultra/db/*": [
+        "packages/db/*"
+      ],
+      "@hpc-ultra/types": [
+        "packages/types/src"
+      ],
+      "@hpc-ultra/validation": [
+        "packages/validation/src"
+      ]
+    }
+  }
+}
