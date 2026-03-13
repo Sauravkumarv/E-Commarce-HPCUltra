@@ -29,3 +29,7 @@ docs/
 4. Start the web app with `pnpm --filter @hpc-ultra/web dev`.
 
 The API supports a demo mode with seeded in-memory data when `DATABASE_URL` is not configured.
+
+## Notes
+
+- Keep shared contracts in `packages/types` and request validation in `packages/validation`.
