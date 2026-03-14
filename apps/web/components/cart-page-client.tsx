@@ -51,11 +51,19 @@ export function CartPageClient() {
                     <h2>{entry.product.name}</h2>
                     <p>{entry.product.shortDescription}</p>
                     <div className="cart-qty">
-                      <button type="button" onClick={() => updateCart(entry.product.id, entry.quantity - 1)}>
+                      <button
+                        type="button"
+                        aria-label={`Decrease quantity for ${entry.product.name}`}
+                        onClick={() => updateCart(entry.product.id, entry.quantity - 1)}
+                      >
                         -
                       </button>
-                      <span>{entry.quantity}</span>
-                      <button type="button" onClick={() => updateCart(entry.product.id, entry.quantity + 1)}>
+                      <span aria-live="polite" aria-atomic="true">{entry.quantity}</span>
+                      <button
+                        type="button"
+                        aria-label={`Increase quantity for ${entry.product.name}`}
+                        onClick={() => updateCart(entry.product.id, entry.quantity + 1)}
+                      >
                         +
                       </button>
                     </div>
@@ -74,19 +82,19 @@ export function CartPageClient() {
 
         <aside className="order-summary">
           <h3>Order Summary</h3>
-          <div>
+          <div className="money-line">
             <span>Subtotal</span>
             <strong>{formatCurrency(subtotal)}</strong>
           </div>
-          <div>
+          <div className="money-line">
             <span>Discount</span>
             <strong>- {formatCurrency(discount)}</strong>
           </div>
-          <div>
+          <div className="money-line">
             <span>Shipping</span>
             <strong>Free</strong>
           </div>
-          <div className="order-total">
+          <div className="money-line order-total">
             <span>Total</span>
             <strong>{formatCurrency(total)}</strong>
           </div>

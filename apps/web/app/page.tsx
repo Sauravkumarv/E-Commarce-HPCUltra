@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { HeroCarousel } from "../components/hero-carousel";
 import { ProductCard } from "../components/product-card";
@@ -29,7 +30,11 @@ export default async function HomePage({
         <div className="cat-grid">
           {categories.map((category) => (
             <Link key={category.id} href={`/category/${category.slug}`} className="cat-card">
-              <div className="cat-card-image" style={{ backgroundImage: `url(${category.image})` }} />
+              <div className="cat-card-media">
+                <div className="cat-card-image-frame">
+                  <Image src={category.image} alt={category.name} fill className="object-contain" sizes="(max-width: 780px) 70vw, 20vw" />
+                </div>
+              </div>
               <div className="cat-card-body">
                 <small>{category.tagline}</small>
                 <h3>{category.name}</h3>

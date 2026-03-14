@@ -30,9 +30,24 @@ export function HeroCarousel() {
               {slide.ctaLabel}
             </Link>
             {product ? (
-              <Link href={`/product/${product.slug}`} className="btn-secondary">
+              <Link href={`/product/${product.slug}`} className="btn-secondary hero-link-soft">
                 View Product
               </Link>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="hero-right">
+          <div className="hero-image-wrap">
+            <div className="hero-image">
+              <Image src={slide.image} alt={slide.title} fill priority className="object-contain hero-main-image" />
+            </div>
+            {product ? (
+              <div className="hero-prod-card">
+                <small>{product.categoryName}</small>
+                <strong>{product.name}</strong>
+                <span>Rs. {product.price.toLocaleString("en-IN")}</span>
+              </div>
             ) : null}
           </div>
           <div className="hero-dots">
@@ -46,19 +61,6 @@ export function HeroCarousel() {
               />
             ))}
           </div>
-        </div>
-
-        <div className="hero-right">
-          <div className="hero-image">
-            <Image src={slide.image} alt={slide.title} fill priority className="object-contain" />
-          </div>
-          {product ? (
-            <div className="hero-prod-card">
-              <small>{product.categoryName}</small>
-              <strong>{product.name}</strong>
-              <span>Rs. {product.price.toLocaleString("en-IN")}</span>
-            </div>
-          ) : null}
         </div>
       </div>
     </section>

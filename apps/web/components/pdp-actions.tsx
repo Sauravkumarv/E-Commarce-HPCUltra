@@ -12,11 +12,15 @@ export function ProductDetailActions({ productId }: { productId: string }) {
   return (
     <div className="pdp-actions">
       <div className="qty-box">
-        <button type="button" onClick={() => setQuantity((current) => Math.max(current - 1, 1))}>
+        <button
+          type="button"
+          aria-label="Decrease quantity"
+          onClick={() => setQuantity((current) => Math.max(current - 1, 1))}
+        >
           -
         </button>
-        <span>{quantity}</span>
-        <button type="button" onClick={() => setQuantity((current) => current + 1)}>
+        <span aria-live="polite" aria-atomic="true">{quantity}</span>
+        <button type="button" aria-label="Increase quantity" onClick={() => setQuantity((current) => current + 1)}>
           +
         </button>
       </div>

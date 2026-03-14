@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { getProductById } from "../lib/catalog";
@@ -25,8 +26,14 @@ export function CheckoutPageClient() {
     })
     .filter(Boolean);
 
+  const isCartEmpty = items.length === 0;
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isCartEmpty) {
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
     const orderNumber = placeOrder({
       name: String(formData.get("name") ?? ""),
@@ -53,79 +60,116 @@ export function CheckoutPageClient() {
         <span className="is-active">3. Review</span>
       </div>
 
-      <form className="checkout-layout" onSubmit={handleSubmit}>
-        <div className="checkout-main">
-          <section className="checkout-card">
-            <h2>Delivery Address</h2>
-            <div className="form-grid">
-              <input name="name" placeholder="Full Name" required />
-              <input name="phone" placeholder="Phone Number" required />
-              <input name="email" type="email" placeholder="Email Address" required />
-              <input name="city" placeholder="City" required />
-              <textarea name="address" placeholder="House No, Street, Landmark" required rows={4} />
-              <input name="pincode" placeholder="PIN Code" required />
-            </div>
-          </section>
-
-          <section className="checkout-card">
-            <h2>Payment Method</h2>
-            <div className="pay-options">
-              {["UPI", "Card", "Net Banking", "Cash on Delivery"].map((option) => (
-                <label key={option} className={`pay-opt ${paymentMethod === option ? "selected" : ""}`}>
-                  <input
-                    type="radio"
-                    name="payment"
-                    checked={paymentMethod === option}
-                    onChange={() => setPaymentMethod(option)}
-                  />
-                  <span>{option}</span>
-                </label>
-              ))}
-            </div>
-          </section>
+      {isCartEmpty ? (
+        <div className="empty-state">
+          <h2>Your cart is empty</h2>
+          <p>Add products to your cart before moving to checkout.</p>
+          <Link href="/cart" className="btn-primary">
+            Go to Cart
+          </Link>
         </div>
+      ) : (
+        <form className="checkout-layout" onSubmit={handleSubmit}>
+          <div className="checkout-main">
+            <section className="checkout-card">
+              <h2>Delivery Address</h2>
+              <p className="mb-5 text-sm leading-6 text-slate-500">Use a complete address so delivery and installation support can reach you without delay.</p>
+              <div className="form-grid">
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  <span>Full Name</span>
+                  <input id="checkout-name" name="name" autoComplete="name" placeholder="Enter your full name" required />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  <span>Phone Number</span>
+                  <input id="checkout-phone" name="phone" autoComplete="tel" inputMode="tel" placeholder="Enter your mobile number" required />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  <span>Email Address</span>
+                  <input id="checkout-email" name="email" type="email" autoComplete="email" placeholder="Enter your email address" required />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  <span>City</span>
+                  <input id="checkout-city" name="city" autoComplete="address-level2" placeholder="Enter your city" required />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700 md:col-span-2">
+                  <span>Address</span>
+                  <textarea
+                    id="checkout-address"
+                    name="address"
+                    autoComplete="street-address"
+                    placeholder="House no, street, area, landmark"
+                    required
+                    rows={4}
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-medium text-slate-700">
+                  <span>PIN Code</span>
+                  <input id="checkout-pincode" name="pincode" autoComplete="postal-code" inputMode="numeric" placeholder="Enter PIN code" required />
+                </label>
+              </div>
+            </section>
 
-        <aside className="checkout-side">
-          <section className="checkout-card">
-            <h2>Review Items</h2>
-            <div className="checkout-items">
-              {items.map((entry) =>
-                entry ? (
-                  <div key={entry.product.id} className="checkout-item">
-                    <span>{entry.product.name}</span>
-                    <strong>
-                      {entry.quantity} x {formatCurrency(entry.product.price)}
-                    </strong>
-                  </div>
-                ) : null
-              )}
-            </div>
-          </section>
+            <section className="checkout-card">
+              <h2>Payment Method</h2>
+              <div className="pay-options">
+                {["UPI", "Card", "Net Banking", "Cash on Delivery"].map((option) => (
+                  <label key={option} className={`pay-opt ${paymentMethod === option ? "selected" : ""}`}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      checked={paymentMethod === option}
+                      onChange={() => setPaymentMethod(option)}
+                    />
+                    <span>{option}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
+          </div>
 
-          <section className="checkout-card">
-            <h2>Price Details</h2>
-            <div className="money-line">
-              <span>Subtotal</span>
-              <strong>{formatCurrency(subtotal)}</strong>
-            </div>
-            <div className="money-line">
-              <span>Discount</span>
-              <strong>- {formatCurrency(discount)}</strong>
-            </div>
-            <div className="money-line">
-              <span>Shipping</span>
-              <strong>Free</strong>
-            </div>
-            <div className="money-line total">
-              <span>Grand Total</span>
-              <strong>{formatCurrency(total)}</strong>
-            </div>
-            <button type="submit" className="btn-primary wide">
-              Place Order
-            </button>
-          </section>
-        </aside>
-      </form>
+          <aside className="checkout-side">
+            <section className="checkout-card">
+              <h2>Review Items</h2>
+              <div className="checkout-items">
+                {items.map((entry) =>
+                  entry ? (
+                    <div key={entry.product.id} className="checkout-item">
+                      <span>{entry.product.name}</span>
+                      <strong>
+                        {entry.quantity} x {formatCurrency(entry.product.price)}
+                      </strong>
+                    </div>
+                  ) : null
+                )}
+              </div>
+            </section>
+
+            <section className="checkout-card">
+              <h2>Price Details</h2>
+              <div className="money-line">
+                <span>Subtotal</span>
+                <strong>{formatCurrency(subtotal)}</strong>
+              </div>
+              <div className="money-line">
+                <span>Discount</span>
+                <strong>- {formatCurrency(discount)}</strong>
+              </div>
+              <div className="money-line">
+                <span>Shipping</span>
+                <strong>Free</strong>
+              </div>
+              <div className="money-line total">
+                <span>Grand Total</span>
+                <strong>{formatCurrency(total)}</strong>
+              </div>
+              <p className="mt-4 text-xs leading-5 text-slate-500">Secure checkout with verified order confirmation and support follow-up after purchase.</p>
+              <button type="submit" className="btn-primary wide mt-4" disabled={isCartEmpty}>
+                Place Order
+              </button>
+            </section>
+          </aside>
+        </form>
+      )}
     </main>
   );
 }
