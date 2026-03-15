@@ -8,7 +8,7 @@ Production-oriented monorepo for a high-performance e-commerce platform built wi
 - `Redis` and `Elasticsearch` integration points
 - `Stripe` and `Razorpay` payment service adapters
 
-##  Workspace
+## Workspace
 
 ```text
 apps/
